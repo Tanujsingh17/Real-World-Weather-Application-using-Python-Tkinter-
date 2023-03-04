@@ -1,0 +1,4 @@
+All the files should be in the same folder.
+First, create a free ID on OpenWeatherMap and get the weather key and URL.
+Now run the icon_code file.
+Now run the code.
