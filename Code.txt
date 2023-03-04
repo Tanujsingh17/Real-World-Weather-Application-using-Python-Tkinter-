@@ -1,0 +1,95 @@
+# # start
+import tkinter as tk # using tk for tkinter library
+from PIL import ImageTk, Image # for background image
+import requests   # for making api requests
+from tkinter import font   # like algerian(we want to increase the font size)
+# print(tk.font.families())
+# we also be adding an icon here using another code
+# using pyinstaller to make it an executable file
+
+HEIGHT = 500
+WIDTH = 600
+
+def format_response(weather):  # to get the particular responses from our output
+    try:
+        name = weather['name']   # we called this
+        desc = weather['weather'][0]['description'] # called from output dictionary
+        temp = weather['main']['temp']  # called from output dictionary, down below is percent notation(%s is place holder for a string)
+        return_this = 'City_Name :\n  %s \n\nWeather_Conditions :\n  %s \n\nTemperature(Celsius) :\n  %s' % (name, desc, temp)
+    except:
+        return_this = 'There was a problem,\nwhile retrieving this information.'
+    return return_this
+
+def get_weather(city):
+    weather_key = "132ae472e71bfa2d2fac73e815456990"   # weather api key for connection between server and programmer
+    url = "http://api.openweathermap.org/data/2.5/weather"   # (API calling)returns a python ditionary for the current weather
+    params = {"APPID": weather_key, "q": city, "units": "metric"}  # this is what we are sending when we are trying to request something from the server
+    response = requests.get(url, params=params)
+    weather = response.json()
+    # print(weather)
+
+    # print(weather['name'])
+    # print(weather['weather'][0]['description'])
+    # print(weather['main']['temp'])
+
+    ## Putting the output of format response inside the label using parameter as response.json
+    label['text'] = format_response(weather)  # for getting the output text, we want to populate the text property of that label, defining text for our lower frame label
+    # performed this step at last and defined text in our label at last
+    # 02215, US (or Boston) both are working or London, GB
+    
+    icon_name = weather['weather'][0]['icon']
+    open_image(icon_name)
+
+def open_image(icon): # i just copied it
+    size = int(lower_frame.winfo_height()*0.25)
+    img = ImageTk.PhotoImage(Image.open('./img/'+icon+'.png').resize((size, size)))
+    weather_icon.delete("all")
+    weather_icon.create_image(0,0, anchor='nw', image=img)
+    weather_icon.image = img
+
+
+root=tk.Tk()
+
+root.title("Weather App")
+
+root.wm_iconbitmap("weather.ico")
+
+# # for deciding the total app screen
+canvas = tk.Canvas(root, height=HEIGHT, width=WIDTH)
+canvas.pack()
+
+# # my approach for inserting the background(second last step)
+background_image = ImageTk.PhotoImage(Image.open("animated_landscape.jpg"))
+background_label = tk.Label(root, image=background_image)
+background_label.place(relheight=1, relwidth=1)
+
+# # similar to our frame (see above program)
+# # bd is border width size
+top_frame = tk.Frame(root, bg='pink', bd=5)
+top_frame.place(relx=0.5, rely=0.2, relheight=0.12, relwidth=0.75, anchor='s')
+
+# # user input
+entry = tk.Entry(top_frame, font=('Algerian', 16), fg='red')
+entry.place(relheight=1, relwidth=0.65)
+
+# # using command keyword argument to obtain the required output from our user input, now whatever function we defined at the top, that function would only be triggered by pressing this button
+button = tk.Button(top_frame, text="Get Weather", font=('Algerian', 13), command=lambda: get_weather(entry.get()))
+button.place(relx=0.7, relheight=1, relwidth=0.3)
+root.bind("<Return>", lambda event: get_weather(entry.get()))  ## binding enter key to the button widget
+
+# # created another frame for label
+lower_frame = tk.Frame(root, bg='#80c1ff', bd=10)
+lower_frame.place(relx=0.5, rely=0.25, relheight=0.65, relwidth=0.75, anchor='n')
+
+# # using label for our lower frame to show output, we didn't define any text in this label
+# # justify is like a margin of a page
+# # anchor is our reference origin
+# # relheight and relwidth both are equal to one hence filling the entire lower frame but lower frame has border width of 10 
+label = tk.Label(lower_frame, font=('Algerian', 15), fg='green', anchor='nw', justify='left', bd=10)
+label.place(relheight=1, relwidth=1)
+
+weather_icon = tk.Canvas(label)  ## current city's at present weather icon
+weather_icon.place(relx=0.6, rely=0.15, relwidth=1, relheight=0.5)
+
+root.mainloop()
+# # end"
